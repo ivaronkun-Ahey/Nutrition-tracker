@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Семейный трекер питания PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Подключаем обновлённые стили -->
+    <link rel="stylesheet" href="styles 3.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Семейный трекер питания PRO</h1>
+            <p class="subtitle">Полная версия • Все модули • Локальное хранение</p>
+            <div class="user-selector" id="userSelector"></div>
+        </div>
+
+        <div class="tabs" id="tabs"></div>
+
+        <!-- ДНЕВНИК -->
+        <div class="tab-content" id="tab-diary">
+            <div class="nav-row">
+                <button class="nav-button" id="prevDayBtn">◀</button>
+                <div class="date-display" id="currentDateLbl">Сегодня</div>
+                <button class="nav-button" id="nextDayBtn">▶</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Калории</div>
+                    <div class="stat-value"><span id="calVal">0</span><span class="stat-unit"> ккал</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="calProg" style="width:0%"><span class="progress-text" id="calProgTxt">0%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Белки</div>
+                    <div class="stat-value"><span id="prVal">0</span><span class="stat-unit"> г</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="prProg" style="width:0%"><span class="progress-text" id="prProgTxt">0%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Жиры</div>
+                    <div class="stat-value"><span id="fatVal">0</span><span class="stat-unit"> г</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="fatProg" style="width:0%"><span class="progress-text" id="fatProgTxt">0%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Углеводы</div>
+                    <div class="stat-value"><span id="carbVal">0</span><span class="stat-unit"> г</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="carbProg" style="width:0%"><span class="progress-text" id="carbProgTxt">0%</span></div></div>
+                </div>
+            </div>
+
+            <div id="mealsWrap"></div>
+        </div>
+
+        <!-- ДОБАВИТЬ -->
+        <div class="tab-content" id="tab-add">
+            <div class="meal-type-selector" id="mealTypeChips"></div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🍳 Быстрое добавление</h3>
+                    <div id="quickAddGrid" class="quick-add-grid"></div>
+                    <div class="mt8 small muted">Настроить → «Меню → Быстрые продукты»</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Поиск в базе</h3>
+                    <div class="food-search">
+                        <input type="text" id="foodSearchInput" placeholder="Начните вводить название...">
+                        <div id="foodSearchResults" class="search-results"></div>
+                    </div>
+                    <div class="mt8 small muted">База из 40+ продуктов + ваши сохранённые</div>
+                </div>
+
+                <div class="card">
+                    <h3>✏️ Ручной ввод</h3>
+                    <div class="grid" style="grid-template-columns:1fr 1fr">
+                        <div><label>Название</label><input id="customName" placeholder="Например: Борщ"></div>
+                        <div><label>Порция (г)</label><input id="customPortion" type="number" value="100"></div>
+                        <div><label>Калории</label><input id="customCal" type="number" value="0"></div>
+                        <div><label>Белки (г)</label><input id="customPr" type="number" value="0"></div>
+                        <div><label>Жиры (г)</label><input id="customFat" type="number" value="0"></div>
+                        <div><label>Углеводы (г)</label><input id="customCarb" type="number" value="0"></div>
+                        <div><label>Клетчатка (г)</label><input id="customFiber" type="number" value="0"></div>
+                        <div><label>Сахара (г)</label><input id="customSugar" type="number" value="0"></div>
+                        <div><label>Натрий (мг)</label><input id="customSodium" type="number" value="0"></div>
+                    </div>
+                    <div class="row mt12">
+                        <button id="addCustomBtn">Добавить</button>
+                        <button class="secondary" id="saveAsMyProductBtn">Сохранить продукт</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- МЕНЮ -->
+        <div class="tab-content" id="tab-menu">
+            <div class="grid">
+                <!-- Карточка меню по городам с обновленным UI -->
+                <div class="card" style="grid-column: 1/-1;">
+                    <h3>🌍 Меню по городам</h3>
+                    <div class="city-menu-layout">
+                        <!-- Левая панель: города -->
+                        <div class="city-buttons-panel">
+                            <h4>🏙️ Города</h4>
+                            <div id="citiesButtons" class="cities-buttons"></div>
+                        </div>
+                        <!-- Правая панель: меню -->
+                        <div class="city-menu-content">
+                            <div id="cityMenuHeader" class="city-menu-header"></div>
+                            <div id="cityMenuDisplay"></div>
+                        </div>
+                    </div>
+                    <!-- Нижняя панель: календарь дней 1–30 -->
+                    <div class="day-calendar-container">
+                        <h4>📅 Выберите день</h4>
+                        <div id="dayCalendar" class="day-calendar"></div>
+                    </div>
+                    <div class="row mt12">
+                        <button id="addCityMenuToDiaryBtn">➕ Добавить всё меню в дневник</button>
+                        <button id="loadMenuCSVBtn" class="secondary">📂 Загрузить меню из CSV</button>
+                    </div>
+                    <input type="file" id="menuCSVFileInput" accept=".csv" style="display:none">
+                </div>
+
+                <div class="card" style="grid-column:1/-1">
+                    <h3>⚡ Быстрые продукты</h3>
+                    <p class="muted mb12">По 8 продуктов на каждый приём пищи (32 на профиль). Перетаскивайте продукты из библиотеки!</p>
+                    <div class="row mb12">
+                        <label style="margin:0;align-self:center">Профиль:</label>
+                        <select id="quickProfileSelect" style="max-width:200px"></select>
+                    </div>
+                    <div class="quick-products-tabs" id="quickMealTabs">
+                        <button data-meal="breakfast" class="active">🌅 Завтрак</button>
+                        <button data-meal="lunch">☀️ Обед</button>
+                        <button data-meal="dinner">🌙 Ужин</button>
+                        <button data-meal="snack">🍎 Перекус</button>
+                    </div>
+                    
+                    <div class="quick-constructor mt12">
+                        <div class="quick-slots" id="quickSlotsGrid"></div>
+                        
+                        <div class="food-panel mt12">
+                            <h4>📚 Библиотека продуктов</h4>
+                            <input type="text" id="quickFoodSearch" placeholder="Поиск продуктов..." class="mb8">
+                            <div class="food-library" id="quickFoodLibrary"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Блок управления быстрыми продуктами -->
+                    <div class="row mt12">
+                        <button id="clearQuickProductsBtn" class="danger">🗑️ Очистить все</button>
+                        <button id="loadQuickProductsJSONBtn" class="secondary">📂 Загрузить из JSON</button>
+                        <button id="exportQuickProductsJSONBtn" class="secondary">💾 Экспортировать в JSON</button>
+                    </div>
+                    <input type="file" id="quickProductsJSONInput" accept=".json" style="display:none">
+                </div>
+
+                <!-- Мои сохранённые продукты -->
+                <div class="card">
+                    <h3>📚 Мои сохранённые продукты</h3>
+                    <div id="myProductsList" class="my-products-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- АНАЛИТИКА -->
+        <div class="tab-content" id="tab-analytics">
+            <div class="grid">
+                <div class="card">
+                    <h3>📈 Калории за неделю</h3>
+                    <div class="chart-container">
+                        <canvas id="caloriesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🥧 Распределение БЖУ</h3>
+                    <div class="chart-container">
+                        <canvas id="macrosChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" id="vitaminsCard" style="display:none">
+                    <h3>💊 Микронутриенты и витамины</h3>
+                    <div class="macros-bars">
+                        <div class="macro-bar-group">
+                            <div class="macro-label">
+                                <span>🌾 Клетчатка</span>
+                                <span id="fiberValue">0 / 25 г</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div id="fiberBar" class="macro-bar-fill"></div>
+                            </div>
+                        </div>
+                        <div class="macro-bar-group">
+                            <div class="macro-label">
+                                <span>🍬 Сахар</span>
+                                <span id="sugarValue">0 / 50 г</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div id="sugarBar" class="macro-bar-fill"></div>
+                            </div>
+                        </div>
+                        <div class="macro-bar-group">
+                            <div class="macro-label">
+                                <span>🧂 Натрий</span>
+                                <span id="sodiumValue">0 / 2300 мг</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div id="sodiumBar" class="macro-bar-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider mt12"></div>
+                    <div id="additionalVitamins" class="mt12">
+                        <h4>✨ Дополнительные витамины</h4>
+                        <div id="vitaminsList" class="pill-list"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Статистика (30 дней)</h3>
+                    <div id="monthStats" class="mt8"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🏆 Достижения</h3>
+                    <div id="achievements" class="mt8"></div>
+                </div>
+
+                <div class="card" id="microsCard" style="display:none">
+                    <h3>🧪 Микронутриенты (сегодня)</h3>
+                    <div class="mt8" id="microsWrap"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПОКУПКИ -->
+        <div class="tab-content" id="tab-shopping">
+            <div class="grid">
+                <div class="card">
+                    <h3>📝 Источники данных</h3>
+                    <label>Из дневника (дней)</label>
+                    <select id="shoppingDays">
+                        <option value="1">1 день</option>
+                        <option value="3">3 дня</option>
+                        <option value="7" selected>Неделя</option>
+                    </select>
+                    
+                    <label class="mt8">Из меню (дней)</label>
+                    <select id="shoppingMenuDays">
+                        <option value="0">Не использовать меню</option>
+                        <option value="3">3 дня</option>
+                        <option value="7">Неделя</option>
+                    </select>
+                    
+                    <div class="row mt12">
+                        <button id="genShoppingBtn">Сформировать список</button>
+                        <button class="secondary" id="smartShoppingBtn">🎯 Умный список</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛒 Список покупок</h3>
+                    <div class="row mb8">
+                        <button id="checkAllBtn" class="small">✓ Отметить все</button>
+                        <button id="uncheckAllBtn" class="small secondary">✗ Снять все</button>
+                        <button id="clearCheckedBtn" class="small danger">🗑️ Удалить отмеченные</button>
+                    </div>
+                    <div id="shoppingListBox" class="list">
+                        <div class="muted">Нажмите "Сформировать список"</div>
+                    </div>
+                    <div class="row mt12">
+                        <button id="exportShoppingBtn">📤 Экспорт списка</button>
+                        <button id="printShoppingBtn" class="secondary">🖨️ Печать</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Категории покупок</h3>
+                    <div id="shoppingCategories" class="list">
+                        <div class="muted">Список будет сгруппирован по категориям</div>
+                    </div>
+                    <div class="mt12">
+                        <h4>📦 Часто покупаемое</h4>
+                        <div id="frequentItems" class="small muted">
+                            На основе вашей истории покупок
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ВОДА -->
+        <div class="tab-content" id="tab-water">
+            <h2>💧 Трекер жидкости</h2>
+            <!-- Основной прогресс и индикаторы -->
+            <div class="card water-progress-card">
+                <div class="progress-overview">
+                    <div class="circular-progress" id="waterCircularProgress">
+                        <svg viewBox="0 0 36 36" class="circle-chart">
+                            <path class="circle-bg" d="M18 2.0845
+                              a 15.9155 15.9155 0 0 1 0 31.831
+                              a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" id="waterProgressCircle" d="M18 2.0845
+                              a 15.9155 15.9155 0 0 1 0 31.831
+                              a 15.9155 15.9155 0 0 1 0 -31.831"
+                              stroke-dasharray="0,100"/>
+                        </svg>
+                        <div class="progress-text"><span id="waterProgressPct">0%</span></div>
+                    </div>
+                    <div class="progress-details">
+                        <div>Цель: <span id="waterGoalLabel">0</span> мл</div>
+                        <div>Выпито: <span id="waterConsumedLabel">0</span> мл</div>
+                    </div>
+                </div>
+                <div id="drinkIndicators" class="drink-indicators"></div>
+            </div>
+
+            <!-- Интерфейс добавления -->
+            <div class="card water-add-card">
+                <h3>➕ Добавить напиток</h3>
+                <div class="row" style="align-items:center; gap:8px;">
+                    <label for="waterDrinkSelect">Напиток:</label>
+                    <select id="waterDrinkSelect"></select>
+                </div>
+                <div class="mt8">
+                    <label for="waterVolumeSlider">Количество (мл):</label>
+                    <input type="range" id="waterVolumeSlider" min="50" max="1000" step="50" value="250">
+                    <div id="waterVolumeDisplay" class="mt4">250 мл</div>
+                </div>
+                <div class="quick-presets mt8 row" style="gap:8px; flex-wrap: wrap;">
+                    <button type="button" class="preset-btn" data-amount="100">100</button>
+                    <button type="button" class="preset-btn" data-amount="200">200</button>
+                    <button type="button" class="preset-btn" data-amount="250">250</button>
+                    <button type="button" class="preset-btn" data-amount="330">330</button>
+                    <button type="button" class="preset-btn" data-amount="500">500</button>
+                    <button type="button" class="preset-btn" data-amount="750">750</button>
+                </div>
+                <div class="custom-input mt8 row" style="align-items:center; gap:6px;">
+                    <input type="number" id="waterCustomInput" placeholder="Свое количество (мл)" min="0" max="2000" style="flex:1;">
+                    <button type="button" id="waterSetCustomBtn" class="secondary">Установить</button>
+                </div>
+                <div class="row mt12">
+                    <button type="button" id="waterAddBtn" class="primary">Добавить</button>
+                </div>
+            </div>
+
+            <!-- Типы напитков -->
+            <div class="card water-types-card">
+                <h3>🥤 Типы напитков</h3>
+                <div id="waterTypesList" class="list"></div>
+                <div class="row mt8">
+                    <button type="button" id="addDrinkTypeBtn" class="secondary">➕ Добавить тип</button>
+                </div>
+                <div id="newDrinkForm" class="mt8" style="display:none;">
+                    <div class="row mt4" style="flex-wrap: wrap; gap:8px;">
+                        <input type="text" id="newDrinkName" placeholder="Название" style="flex:1; min-width:120px;">
+                        <input type="text" id="newDrinkEmoji" placeholder="Emoji" style="width:60px;">
+                    </div>
+                    <div class="row mt4" style="flex-wrap: wrap; gap:8px;">
+                        <input type="color" id="newDrinkColor" value="#06b6d4" style="width:60px;">
+                        <input type="number" id="newDrinkGoal" placeholder="Цель (мл)" min="50" value="200" style="max-width:120px;">
+                        <input type="number" id="newDrinkHydration" step="0.1" min="0.3" max="1.0" value="0.7" style="max-width:100px;">
+                    </div>
+                    <div class="row mt4" style="gap:8px;">
+                        <button type="button" id="saveNewDrinkBtn" class="primary">Сохранить</button>
+                        <button type="button" id="cancelNewDrinkBtn" class="secondary">Отмена</button>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="row mt8">
+                    <button type="button" id="resetLiquidBtn" class="secondary">Сбросить день</button>
+                    <button type="button" id="saveLiquidGoalsBtn" class="secondary">💾 Сохранить настройки</button>
+                </div>
+            </div>
+
+            <!-- История -->
+            <div class="card water-history-card">
+                <h3>📅 История</h3>
+                <div class="row" style="justify-content: space-between; align-items:center;">
+                    <button type="button" id="waterPrevMonth" class="secondary small">◀</button>
+                    <div id="waterCalendarTitle" style="font-weight:600;"></div>
+                    <button type="button" id="waterNextMonth" class="secondary small">▶</button>
+                </div>
+                <div id="waterCalendar" class="calendar mt8"></div>
+                <div id="waterDayDetails" class="mt8"></div>
+            </div>
+        </div>
+
+        <!-- РЕЦЕПТЫ -->
+        <div class="tab-content" id="tab-recipes">
+            <div class="grid">
+                <div class="card">
+                    <h3>📚 Мои рецепты</h3>
+                    <div id="recipesList" class="list"></div>
+                </div>
+
+                <div class="card">
+                    <h3>➕ Создать рецепт</h3>
+                    <label>Название</label>
+                    <input id="recName" placeholder="Борщ классический">
+                    <div class="mt8">
+                        <input id="recSearch" placeholder="Поиск ингредиента...">
+                        <div id="recSearchResults" class="search-results" style="position:static;display:none;margin-top:6px"></div>
+                    </div>
+                    <div class="mt12">
+                        <h4>Ингредиенты</h4>
+                        <div id="recIngrBox" class="list mt8"></div>
+                    </div>
+                    <div class="row mt12">
+                        <label style="margin:0;align-self:center">Порций</label>
+                        <input id="recServings" type="number" value="4" style="max-width:100px">
+                        <button id="saveRecipeBtn">Сохранить</button>
+                    </div>
+                    <div id="recMacrosSum" class="mt12 small muted"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🍽️ Добавить рецепт</h3>
+                    <label>Рецепт</label>
+                    <select id="addRecipeSelect"></select>
+                    <label class="mt8">Приём пищи</label>
+                    <select id="addRecipeMeal">
+                        <option value="breakfast">Завтрак</option>
+                        <option value="lunch">Обед</option>
+                        <option value="dinner">Ужин</option>
+                        <option value="snack">Перекус</option>
+                    </select>
+                    <label class="mt8">Порций</label>
+                    <input id="addRecipeServings" type="number" value="1">
+                    <button id="addRecipeToDiaryBtn" class="mt12">Добавить в дневник</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- НЕДЕЛЯ -->
+        <div class="tab-content" id="tab-week">
+            <h2>🗓️ Планировщик недели</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="pill">Неделя: <span id="weekStartLbl"></span></div>
+                    <button id="prevWeekBtn" class="secondary">◀ Пред.</button>
+                    <button id="nextWeekBtn" class="secondary">След. ▶</button>
+                </div>
+            </div>
+            <div class="card">
+                <div id="weekTableWrap"></div>
+                <div class="row mt12">
+                    <button id="saveWeekPlanBtn">💾 Сохранить</button>
+                    <button id="applyWeekPlanToDiaryBtn" class="secondary">➕ В дневник</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- НАСТРОЙКИ -->
+        <div class="tab-content" id="tab-settings">
+            <div class="grid">
+                <div class="card">
+                    <h3>👤 Профили</h3>
+                    <div id="profilesList"></div>
+                    <div class="row mt12">
+                        <input id="newProfileName" placeholder="Имя" style="flex:1">
+                        <input id="newProfileEmoji" placeholder="😊" style="max-width:80px">
+                        <button id="addProfileBtn">Добавить</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Цели питания</h3>
+                    <div id="goalsBox"></div>
+                </div>
+
+                <div class="card" id="goalsCalcCard" style="display:none">
+                    <h3>🧮 Калькулятор целей</h3>
+                    <div class="row">
+                        <select id="calcProfileSelect"></select>
+                        <select id="calcSex">
+                            <option value="m">Мужчина</option>
+                            <option value="f">Женщина</option>
+                        </select>
+                        <input id="calcAge" type="number" placeholder="Возраст" value="30" style="max-width:100px">
+                        <input id="calcHeight" type="number" placeholder="Рост" value="175" style="max-width:100px">
+                        <input id="calcWeight" type="number" placeholder="Вес" value="70" style="max-width:100px">
+                    </div>
+                    <div class="row mt8">
+                        <select id="calcAct">
+                            <option value="1.2">Низкая активность</option>
+                            <option value="1.375">Лёгкая</option>
+                            <option value="1.55" selected>Средняя</option>
+                            <option value="1.725">Высокая</option>
+                            <option value="1.9">Очень высокая</option>
+                        </select>
+                        <select id="calcGoal">
+                            <option value="-0.2">Похудение -20%</option>
+                            <option value="-0.1">Похудение -10%</option>
+                            <option value="0" selected>Поддержание</option>
+                            <option value="0.1">Набор +10%</option>
+                        </select>
+                    </div>
+                    <div class="row mt12">
+                        <button id="calcDoBtn">Рассчитать</button>
+                        <div id="calcOut" class="pill">---</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Модули</h3>
+                    <div class="list">
+                        <label><input type="checkbox" id="modWater"> 💧 Трекер жидкости</label>
+                        <label><input type="checkbox" id="modRecipes"> 👨‍🍳 Рецепты</label>
+                        <label><input type="checkbox" id="modMicros"> 💊 Микронутриенты</label>
+                        <label><input type="checkbox" id="modGoalsCalc"> 🧮 Калькулятор целей</label>
+                        <label><input type="checkbox" id="modWeek"> 🗓️ Планировщик недели</label>
+                        <label><input type="checkbox" id="modShopping"> 🛒 Покупки</label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎨 Тема</h3>
+                    <div class="radio-row">
+                        <label><input type="radio" name="theme" value="light" id="themeLight"> Светлая</label>
+                        <label><input type="radio" name="theme" value="dark" id="themeDark"> Тёмная</label>
+                        <label><input type="radio" name="theme" value="system" id="themeSystem"> Система</label>
+                    </div>
+                </div>
+
+                <!-- Новая карточка для аллергий -->
+                <div class="card" id="allergiesCard">
+                    <h3>🚫 Аллергии</h3>
+                    <!-- Список текущих аллергенов -->
+                    <div id="allergiesList" class="allergens-list"></div>
+                    <!-- Форма добавления -->
+                    <div class="allergen-add-form">
+                        <select id="newAllergenSelect">
+                            <option value="" disabled selected>Выберите аллерген</option>
+                            <option value="молоко">Молоко</option>
+                            <option value="яйца">Яйца</option>
+                            <option value="рыба">Рыба</option>
+                            <option value="морепродукты">Морепродукты</option>
+                            <option value="орехи">Орехи</option>
+                            <option value="арахис">Арахис</option>
+                            <option value="пшеница">Пшеница (глютен)</option>
+                            <option value="соя">Соя</option>
+                            <option value="кунжут">Кунжут</option>
+                        </select>
+                        <button id="addAllergenBtn">+ Добавить</button>
+                    </div>
+                    <small class="muted">Продукты с аллергенами будут подсвечены в дневнике</small>
+                </div>
+
+                <div class="card" id="microsGoalsCard" style="display:none">
+                    <h3>🎯 Цели микронутриентов</h3>
+                    <div id="microsGoalsBox" class="list"></div>
+                </div>
+
+                <div class="card">
+                    <h3>💾 Данные</h3>
+                    <div class="row">
+                        <button id="exportAllBtn">📤 Экспорт</button>
+                        <button id="importAllBtn" class="secondary">📥 Импорт</button>
+                        <button id="clearAllBtn" class="danger">🗑️ Очистить</button>
+                    </div>
+                    <input type="file" id="importFileInput" accept=".json" style="display:none">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div class="modal" id="editMealModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Редактирование</h3>
+                <button class="modal-close" id="closeEditModalBtn">×</button>
+            </div>
+            <div id="editMealContent"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="fullEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Полное редактирование</h3>
+                <button class="modal-close" id="closeFullEditModalBtn">×</button>
+            </div>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+                <div style="grid-column:1/-1"><label>Название</label><input id="editName"></div>
+                <div><label>Порция (г)</label><input id="editPortion" type="number"></div>
+                <div><label>Калории</label><input id="editCal" type="number"></div>
+                <div><label>Белки</label><input id="editPr" type="number" step="0.1"></div>
+                <div><label>Жиры</label><input id="editFat" type="number" step="0.1"></div>
+                <div><label>Углеводы</label><input id="editCarb" type="number" step="0.1"></div>
+                <div><label>Клетчатка</label><input id="editFiber" type="number" step="0.1"></div>
+                <div><label>Сахара</label><input id="editSugar" type="number" step="0.1"></div>
+                <div><label>Натрий</label><input id="editSodium" type="number"></div>
+            </div>
+            <div class="row mt12">
+                <button id="saveFullEditBtn">Сохранить</button>
+                <button class="secondary" id="cancelFullEditBtn">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="quickProductModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="quickModalTitle">Добавить продукт</h3>
+                <button class="modal-close" id="closeQuickModalBtn">×</button>
+            </div>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+                <div style="grid-column:1/-1"><label>Название *</label><input id="quickModalName"></div>
+                <div style="grid-column:1/-1"><label>Эмодзи</label><input id="quickModalEmoji" maxlength="2"></div>
+                <div><label>Порция (г) *</label><input id="quickModalPortion" type="number" value="100"></div>
+                <div><label>Калории *</label><input id="quickModalCal" type="number" value="0"></div>
+                <div><label>Белки *</label><input id="quickModalPr" type="number" value="0" step="0.1"></div>
+                <div><label>Жиры *</label><input id="quickModalFat" type="number" value="0" step="0.1"></div>
+                <div style="grid-column:1/-1"><label>Углеводы *</label><input id="quickModalCarb" type="number" value="0" step="0.1"></div>
+            </div>
+            <div class="row mt12" style="justify-content:flex-end">
+                <button class="secondary" id="cancelQuickModalBtn">Отмена</button>
+                <button id="saveQuickProductBtn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вставка модального окна редактирования быстрого продукта из HTML_UPDATES -->
+    <div class="modal" id="editQuickProductModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✎ Редактировать быстрый продукт</h3>
+                <button class="xbtn" id="closeEditQuickModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <label>Название</label>
+                <input type="text" id="editQuickName" placeholder="Название блюда">
+                
+                <label class="mt8">Порция (г)</label>
+                <input type="number" id="editQuickPortion" placeholder="100">
+                
+                <div class="grid mt8" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                    <div>
+                        <label>Калории</label>
+                        <input type="number" id="editQuickCal" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Белки (г)</label>
+                        <input type="number" step="0.1" id="editQuickPr" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Жиры (г)</label>
+                        <input type="number" step="0.1" id="editQuickFat" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Углеводы (г)</label>
+                        <input type="number" step="0.1" id="editQuickCarb" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Клетчатка (г)</label>
+                        <input type="number" step="0.1" id="editQuickFiber" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Сахара (г)</label>
+                        <input type="number" step="0.1" id="editQuickSugar" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Натрий (мг)</label>
+                        <input type="number" id="editQuickSodium" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                <div class="row">
+                    <button id="saveEditQuickBtn">💾 Сохранить</button>
+                    <button class="secondary" id="cancelEditQuickBtn">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для конструктора меню -->
+    <div class="modal" id="mealSelectorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Выберите блюдо</h3>
+                <button class="modal-close" id="closeMealSelectorBtn">×</button>
+            </div>
+            <div class="food-search">
+                <input type="text" id="mealSearchInput" placeholder="Поиск блюд...">
+                <div id="mealSearchResults" class="search-results"></div>
+            </div>
+            <div class="food-library mt12" id="modalFoodLibrary" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Подключаем данные и логику приложения (версия 3) -->
+    <script src="data 3.js"></script>
+    <script src="app 3.js"></script>
+</body>
+</html>
