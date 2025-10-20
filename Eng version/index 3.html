@@ -1,0 +1,704 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Family Nutrition Tracker PRO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include updated styles -->
+    <link rel="stylesheet" href="styles 3.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Family Nutrition Tracker PRO</h1>
+            <p class="subtitle">Full Version • All Modules • Local Storage</p>
+            <div class="user-selector" id="userSelector"></div>
+        </div>
+
+        <div class="tabs" id="tabs"></div>
+
+        <!-- DIARY -->
+        <div class="tab-content" id="tab-diary">
+            <div class="nav-row">
+                <button class="nav-button" id="prevDayBtn">◀</button>
+                <div class="date-display" id="currentDateLbl">Today</div>
+                <button class="nav-button" id="nextDayBtn">▶</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Calories</div>
+                    <div class="stat-value"><span id="calVal">0</span><span class="stat-unit"> cal</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="calProg" style="width:0%"><span class="progress-text" id="calProgTxt">0%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Protein</div>
+                    <div class="stat-value"><span id="prVal">0</span><span class="stat-unit"> g</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="prProg" style="width:0%"><span class="progress-text" id="prProgTxt">0%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fat</div>
+                    <div class="stat-value"><span id="fatVal">0</span><span class="stat-unit"> g</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="fatProg" style="width:0%"><span class="progress-text" id="fatProgTxt">0%</span></div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Carbs</div>
+                    <div class="stat-value"><span id="carbVal">0</span><span class="stat-unit"> g</span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="carbProg" style="width:0%"><span class="progress-text" id="carbProgTxt">0%</span></div></div>
+                </div>
+            </div>
+
+            <div id="mealsWrap"></div>
+        </div>
+
+        <!-- ADD -->
+        <div class="tab-content" id="tab-add">
+            <div class="meal-type-selector" id="mealTypeChips"></div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🍳 Quick Add</h3>
+                    <div id="quickAddGrid" class="quick-add-grid"></div>
+                    <div class="mt8 small muted">Configure → «Menu → Quick Products»</div>
+                </div>
+
+                <div class="card">
+                    <h3>🔍 Database Search</h3>
+                    <div class="food-search">
+                        <input type="text" id="foodSearchInput" placeholder="Start typing name...">
+                        <div id="foodSearchResults" class="search-results"></div>
+                    </div>
+                    <div class="mt8 small muted">40+ product database + your saved items</div>
+                </div>
+
+                <div class="card">
+                    <h3>✏️ Manual Input</h3>
+                    <div class="grid" style="grid-template-columns:1fr 1fr">
+                        <div><label>Name</label><input id="customName" placeholder="Example: Borscht"></div>
+                        <div><label>Portion (g)</label><input id="customPortion" type="number" value="100"></div>
+                        <div><label>Calories</label><input id="customCal" type="number" value="0"></div>
+                        <div><label>Protein (g)</label><input id="customPr" type="number" value="0"></div>
+                        <div><label>Fat (g)</label><input id="customFat" type="number" value="0"></div>
+                        <div><label>Carbs (g)</label><input id="customCarb" type="number" value="0"></div>
+                        <div><label>Fiber (g)</label><input id="customFiber" type="number" value="0"></div>
+                        <div><label>Sugar (g)</label><input id="customSugar" type="number" value="0"></div>
+                        <div><label>Sodium (mg)</label><input id="customSodium" type="number" value="0"></div>
+                    </div>
+                    <div class="row mt12">
+                        <button id="addCustomBtn">Add</button>
+                        <button class="secondary" id="saveAsMyProductBtn">Save Product</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU -->
+        <div class="tab-content" id="tab-menu">
+            <div class="grid">
+                <!-- City menu card with updated UI -->
+                <div class="card" style="grid-column: 1/-1;">
+                    <h3>🌍 City Menus</h3>
+                    <div class="city-menu-layout">
+                        <!-- Left panel: cities -->
+                        <div class="city-buttons-panel">
+                            <h4>🏙️ Cities</h4>
+                            <div id="citiesButtons" class="cities-buttons"></div>
+                        </div>
+                        <!-- Right panel: menu -->
+                        <div class="city-menu-content">
+                            <div id="cityMenuHeader" class="city-menu-header"></div>
+                            <div id="cityMenuDisplay"></div>
+                        </div>
+                    </div>
+                    <!-- Bottom panel: day calendar 1-30 -->
+                    <div class="day-calendar-container">
+                        <h4>📅 Select Day</h4>
+                        <div id="dayCalendar" class="day-calendar"></div>
+                    </div>
+                    <div class="row mt12">
+                        <button id="addCityMenuToDiaryBtn">➕ Add Full Menu to Diary</button>
+                        <button id="loadMenuCSVBtn" class="secondary">📂 Load Menu from CSV</button>
+                    </div>
+                    <input type="file" id="menuCSVFileInput" accept=".csv" style="display:none">
+                </div>
+
+                <div class="card" style="grid-column:1/-1">
+                    <h3>⚡ Quick Products</h3>
+                    <p class="muted mb12">8 products per meal (32 per profile). Drag products from library!</p>
+                    <div class="row mb12">
+                        <label style="margin:0;align-self:center">Profile:</label>
+                        <select id="quickProfileSelect" style="max-width:200px"></select>
+                    </div>
+                    <div class="quick-products-tabs" id="quickMealTabs">
+                        <button data-meal="breakfast" class="active">🌅 Breakfast</button>
+                        <button data-meal="lunch">☀️ Lunch</button>
+                        <button data-meal="dinner">🌙 Dinner</button>
+                        <button data-meal="snack">🍎 Snack</button>
+                    </div>
+                    
+                    <div class="quick-constructor mt12">
+                        <div class="quick-slots" id="quickSlotsGrid"></div>
+                        
+                        <div class="food-panel mt12">
+                            <h4>📚 Product Library</h4>
+                            <input type="text" id="quickFoodSearch" placeholder="Search products..." class="mb8">
+                            <div class="food-library" id="quickFoodLibrary"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick products management block -->
+                    <div class="row mt12">
+                        <button id="clearQuickProductsBtn" class="danger">🗑️ Clear All</button>
+                        <button id="loadQuickProductsJSONBtn" class="secondary">📂 Load from JSON</button>
+                        <button id="exportQuickProductsJSONBtn" class="secondary">💾 Export to JSON</button>
+                    </div>
+                    <input type="file" id="quickProductsJSONInput" accept=".json" style="display:none">
+                </div>
+
+                <!-- My saved products -->
+                <div class="card">
+                    <h3>📚 My Saved Products</h3>
+                    <div id="myProductsList" class="my-products-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS -->
+        <div class="tab-content" id="tab-analytics">
+            <div class="grid">
+                <div class="card">
+                    <h3>📈 Weekly Calories</h3>
+                    <div class="chart-container">
+                        <canvas id="caloriesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🥧 Macronutrient Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="macrosChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card" id="vitaminsCard" style="display:none">
+                    <h3>💊 Micronutrients and Vitamins</h3>
+                    <div class="macros-bars">
+                        <div class="macro-bar-group">
+                            <div class="macro-label">
+                                <span>🌾 Fiber</span>
+                                <span id="fiberValue">0 / 25 g</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div id="fiberBar" class="macro-bar-fill"></div>
+                            </div>
+                        </div>
+                        <div class="macro-bar-group">
+                            <div class="macro-label">
+                                <span>🍬 Sugar</span>
+                                <span id="sugarValue">0 / 50 g</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div id="sugarBar" class="macro-bar-fill"></div>
+                            </div>
+                        </div>
+                        <div class="macro-bar-group">
+                            <div class="macro-label">
+                                <span>🧂 Sodium</span>
+                                <span id="sodiumValue">0 / 2300 mg</span>
+                            </div>
+                            <div class="macro-bar">
+                                <div id="sodiumBar" class="macro-bar-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="divider mt12"></div>
+                    <div id="additionalVitamins" class="mt12">
+                        <h4>✨ Additional Vitamins</h4>
+                        <div id="vitaminsList" class="pill-list"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Statistics (30 days)</h3>
+                    <div id="monthStats" class="mt8"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🏆 Achievements</h3>
+                    <div id="achievements" class="mt8"></div>
+                </div>
+
+                <div class="card" id="microsCard" style="display:none">
+                    <h3>🧪 Micronutrients (today)</h3>
+                    <div class="mt8" id="microsWrap"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHOPPING -->
+        <div class="tab-content" id="tab-shopping">
+            <div class="grid">
+                <div class="card">
+                    <h3>📝 Data Sources</h3>
+                    <label>From Diary (days)</label>
+                    <select id="shoppingDays">
+                        <option value="1">1 day</option>
+                        <option value="3">3 days</option>
+                        <option value="7" selected>Week</option>
+                    </select>
+                    
+                    <label class="mt8">From Menu (days)</label>
+                    <select id="shoppingMenuDays">
+                        <option value="0">Don't use menu</option>
+                        <option value="3">3 days</option>
+                        <option value="7">Week</option>
+                    </select>
+                    
+                    <div class="row mt12">
+                        <button id="genShoppingBtn">Generate List</button>
+                        <button class="secondary" id="smartShoppingBtn">🎯 Smart List</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🛒 Shopping List</h3>
+                    <div class="row mb8">
+                        <button id="checkAllBtn" class="small">✓ Check All</button>
+                        <button id="uncheckAllBtn" class="small secondary">✗ Uncheck All</button>
+                        <button id="clearCheckedBtn" class="small danger">🗑️ Delete Checked</button>
+                    </div>
+                    <div id="shoppingListBox" class="list">
+                        <div class="muted">Click "Generate List"</div>
+                    </div>
+                    <div class="row mt12">
+                        <button id="exportShoppingBtn">📤 Export List</button>
+                        <button id="printShoppingBtn" class="secondary">🖨️ Print</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Shopping Categories</h3>
+                    <div id="shoppingCategories" class="list">
+                        <div class="muted">List will be grouped by categories</div>
+                    </div>
+                    <div class="mt12">
+                        <h4>📦 Frequently Bought</h4>
+                        <div id="frequentItems" class="small muted">
+                            Based on your purchase history
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WATER -->
+        <div class="tab-content" id="tab-water">
+            <h2>💧 Liquid Tracker</h2>
+            <!-- Main progress and indicators -->
+            <div class="card water-progress-card">
+                <div class="progress-overview">
+                    <div class="circular-progress" id="waterCircularProgress">
+                        <svg viewBox="0 0 36 36" class="circle-chart">
+                            <path class="circle-bg" d="M18 2.0845
+                              a 15.9155 15.9155 0 0 1 0 31.831
+                              a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                            <path class="circle" id="waterProgressCircle" d="M18 2.0845
+                              a 15.9155 15.9155 0 0 1 0 31.831
+                              a 15.9155 15.9155 0 0 1 0 -31.831"
+                              stroke-dasharray="0,100"/>
+                        </svg>
+                        <div class="progress-text"><span id="waterProgressPct">0%</span></div>
+                    </div>
+                    <div class="progress-details">
+                        <div>Goal: <span id="waterGoalLabel">0</span> ml</div>
+                        <div>Consumed: <span id="waterConsumedLabel">0</span> ml</div>
+                    </div>
+                </div>
+                <div id="drinkIndicators" class="drink-indicators"></div>
+            </div>
+
+            <!-- Add interface -->
+            <div class="card water-add-card">
+                <h3>➕ Add Drink</h3>
+                <div class="row" style="align-items:center; gap:8px;">
+                    <label for="waterDrinkSelect">Drink:</label>
+                    <select id="waterDrinkSelect"></select>
+                </div>
+                <div class="mt8">
+                    <label for="waterVolumeSlider">Amount (ml):</label>
+                    <input type="range" id="waterVolumeSlider" min="50" max="1000" step="50" value="250">
+                    <div id="waterVolumeDisplay" class="mt4">250 ml</div>
+                </div>
+                <div class="quick-presets mt8 row" style="gap:8px; flex-wrap: wrap;">
+                    <button type="button" class="preset-btn" data-amount="100">100</button>
+                    <button type="button" class="preset-btn" data-amount="200">200</button>
+                    <button type="button" class="preset-btn" data-amount="250">250</button>
+                    <button type="button" class="preset-btn" data-amount="330">330</button>
+                    <button type="button" class="preset-btn" data-amount="500">500</button>
+                    <button type="button" class="preset-btn" data-amount="750">750</button>
+                </div>
+                <div class="custom-input mt8 row" style="align-items:center; gap:6px;">
+                    <input type="number" id="waterCustomInput" placeholder="Custom amount (ml)" min="0" max="2000" style="flex:1;">
+                    <button type="button" id="waterSetCustomBtn" class="secondary">Set</button>
+                </div>
+                <div class="row mt12">
+                    <button type="button" id="waterAddBtn" class="primary">Add</button>
+                </div>
+            </div>
+
+            <!-- Drink types -->
+            <div class="card water-types-card">
+                <h3>🥤 Drink Types</h3>
+                <div id="waterTypesList" class="list"></div>
+                <div class="row mt8">
+                    <button type="button" id="addDrinkTypeBtn" class="secondary">➕ Add Type</button>
+                </div>
+                <div id="newDrinkForm" class="mt8" style="display:none;">
+                    <div class="row mt4" style="flex-wrap: wrap; gap:8px;">
+                        <input type="text" id="newDrinkName" placeholder="Name" style="flex:1; min-width:120px;">
+                        <input type="text" id="newDrinkEmoji" placeholder="Emoji" style="width:60px;">
+                    </div>
+                    <div class="row mt4" style="flex-wrap: wrap; gap:8px;">
+                        <input type="color" id="newDrinkColor" value="#06b6d4" style="width:60px;">
+                        <input type="number" id="newDrinkGoal" placeholder="Goal (ml)" min="50" value="200" style="max-width:120px;">
+                        <input type="number" id="newDrinkHydration" step="0.1" min="0.3" max="1.0" value="0.7" style="max-width:100px;">
+                    </div>
+                    <div class="row mt4" style="gap:8px;">
+                        <button type="button" id="saveNewDrinkBtn" class="primary">Save</button>
+                        <button type="button" id="cancelNewDrinkBtn" class="secondary">Cancel</button>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="row mt8">
+                    <button type="button" id="resetLiquidBtn" class="secondary">Reset Day</button>
+                    <button type="button" id="saveLiquidGoalsBtn" class="secondary">💾 Save Settings</button>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="card water-history-card">
+                <h3>📅 History</h3>
+                <div class="row" style="justify-content: space-between; align-items:center;">
+                    <button type="button" id="waterPrevMonth" class="secondary small">◀</button>
+                    <div id="waterCalendarTitle" style="font-weight:600;"></div>
+                    <button type="button" id="waterNextMonth" class="secondary small">▶</button>
+                </div>
+                <div id="waterCalendar" class="calendar mt8"></div>
+                <div id="waterDayDetails" class="mt8"></div>
+            </div>
+        </div>
+
+        <!-- RECIPES -->
+        <div class="tab-content" id="tab-recipes">
+            <div class="grid">
+                <div class="card">
+                    <h3>📚 My Recipes</h3>
+                    <div id="recipesList" class="list"></div>
+                </div>
+
+                <div class="card">
+                    <h3>➕ Create Recipe</h3>
+                    <label>Name</label>
+                    <input id="recName" placeholder="Classic Borscht">
+                    <div class="mt8">
+                        <input id="recSearch" placeholder="Search ingredient...">
+                        <div id="recSearchResults" class="search-results" style="position:static;display:none;margin-top:6px"></div>
+                    </div>
+                    <div class="mt12">
+                        <h4>Ingredients</h4>
+                        <div id="recIngrBox" class="list mt8"></div>
+                    </div>
+                    <div class="row mt12">
+                        <label style="margin:0;align-self:center">Servings</label>
+                        <input id="recServings" type="number" value="4" style="max-width:100px">
+                        <button id="saveRecipeBtn">Save</button>
+                    </div>
+                    <div id="recMacrosSum" class="mt12 small muted"></div>
+                </div>
+
+                <div class="card">
+                    <h3>🍽️ Add Recipe</h3>
+                    <label>Recipe</label>
+                    <select id="addRecipeSelect"></select>
+                    <label class="mt8">Meal</label>
+                    <select id="addRecipeMeal">
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
+                    </select>
+                    <label class="mt8">Servings</label>
+                    <input id="addRecipeServings" type="number" value="1">
+                    <button id="addRecipeToDiaryBtn" class="mt12">Add to Diary</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEEK -->
+        <div class="tab-content" id="tab-week">
+            <h2>🗓️ Week Planner</h2>
+            <div class="card">
+                <div class="row">
+                    <div class="pill">Week: <span id="weekStartLbl"></span></div>
+                    <button id="prevWeekBtn" class="secondary">◀ Prev</button>
+                    <button id="nextWeekBtn" class="secondary">Next ▶</button>
+                </div>
+            </div>
+            <div class="card">
+                <div id="weekTableWrap"></div>
+                <div class="row mt12">
+                    <button id="saveWeekPlanBtn">💾 Save</button>
+                    <button id="applyWeekPlanToDiaryBtn" class="secondary">➕ To Diary</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="tab-content" id="tab-settings">
+            <div class="grid">
+                <div class="card">
+                    <h3>👤 Profiles</h3>
+                    <div id="profilesList"></div>
+                    <div class="row mt12">
+                        <input id="newProfileName" placeholder="Name" style="flex:1">
+                        <input id="newProfileEmoji" placeholder="😊" style="max-width:80px">
+                        <button id="addProfileBtn">Add</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎯 Nutrition Goals</h3>
+                    <div id="goalsBox"></div>
+                </div>
+
+                <div class="card" id="goalsCalcCard" style="display:none">
+                    <h3>🧮 Goals Calculator</h3>
+                    <div class="row">
+                        <select id="calcProfileSelect"></select>
+                        <select id="calcSex">
+                            <option value="m">Male</option>
+                            <option value="f">Female</option>
+                        </select>
+                        <input id="calcAge" type="number" placeholder="Age" value="30" style="max-width:100px">
+                        <input id="calcHeight" type="number" placeholder="Height" value="175" style="max-width:100px">
+                        <input id="calcWeight" type="number" placeholder="Weight" value="70" style="max-width:100px">
+                    </div>
+                    <div class="row mt8">
+                        <select id="calcAct">
+                            <option value="1.2">Low activity</option>
+                            <option value="1.375">Light</option>
+                            <option value="1.55" selected>Moderate</option>
+                            <option value="1.725">High</option>
+                            <option value="1.9">Very high</option>
+                        </select>
+                        <select id="calcGoal">
+                            <option value="-0.2">Weight loss -20%</option>
+                            <option value="-0.1">Weight loss -10%</option>
+                            <option value="0" selected>Maintenance</option>
+                            <option value="0.1">Gain +10%</option>
+                        </select>
+                    </div>
+                    <div class="row mt12">
+                        <button id="calcDoBtn">Calculate</button>
+                        <div id="calcOut" class="pill">---</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ Modules</h3>
+                    <div class="list">
+                        <label><input type="checkbox" id="modWater"> 💧 Liquid Tracker</label>
+                        <label><input type="checkbox" id="modRecipes"> 👨‍🍳 Recipes</label>
+                        <label><input type="checkbox" id="modMicros"> 💊 Micronutrients</label>
+                        <label><input type="checkbox" id="modGoalsCalc"> 🧮 Goals Calculator</label>
+                        <label><input type="checkbox" id="modWeek"> 🗓️ Week Planner</label>
+                        <label><input type="checkbox" id="modShopping"> 🛒 Shopping</label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🎨 Theme</h3>
+                    <div class="radio-row">
+                        <label><input type="radio" name="theme" value="light" id="themeLight"> Light</label>
+                        <label><input type="radio" name="theme" value="dark" id="themeDark"> Dark</label>
+                        <label><input type="radio" name="theme" value="system" id="themeSystem"> System</label>
+                    </div>
+                </div>
+
+                <!-- New card for allergies -->
+                <div class="card" id="allergiesCard">
+                    <h3>🚫 Allergies</h3>
+                    <!-- Current allergens list -->
+                    <div id="allergiesList" class="allergens-list"></div>
+                    <!-- Add form -->
+                    <div class="allergen-add-form">
+                        <select id="newAllergenSelect">
+                            <option value="" disabled selected>Choose allergen</option>
+                            <option value="milk">Milk</option>
+                            <option value="eggs">Eggs</option>
+                            <option value="fish">Fish</option>
+                            <option value="seafood">Seafood</option>
+                            <option value="nuts">Nuts</option>
+                            <option value="peanuts">Peanuts</option>
+                            <option value="wheat">Wheat (gluten)</option>
+                            <option value="soy">Soy</option>
+                            <option value="sesame">Sesame</option>
+                            <option value="gluten">Gluten</option>
+                            <option value="lactose">Lactose</option>
+                        </select>
+                        <button id="addAllergenBtn">+ Add</button>
+                    </div>
+                    <small class="muted">Products with allergens will be highlighted in diary</small>
+                </div>
+
+                <div class="card" id="microsGoalsCard" style="display:none">
+                    <h3>🎯 Micronutrient Goals</h3>
+                    <div id="microsGoalsBox" class="list"></div>
+                </div>
+
+                <div class="card">
+                    <h3>💾 Data</h3>
+                    <div class="row">
+                        <button id="exportAllBtn">📤 Export</button>
+                        <button id="importAllBtn" class="secondary">📥 Import</button>
+                        <button id="clearAllBtn" class="danger">🗑️ Clear</button>
+                    </div>
+                    <input type="file" id="importFileInput" accept=".json" style="display:none">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal windows -->
+    <div class="modal" id="editMealModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit</h3>
+                <button class="modal-close" id="closeEditModalBtn">×</button>
+            </div>
+            <div id="editMealContent"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="fullEditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Full Edit</h3>
+                <button class="modal-close" id="closeFullEditModalBtn">×</button>
+            </div>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+                <div style="grid-column:1/-1"><label>Name</label><input id="editName"></div>
+                <div><label>Portion (g)</label><input id="editPortion" type="number"></div>
+                <div><label>Calories</label><input id="editCal" type="number"></div>
+                <div><label>Protein</label><input id="editPr" type="number" step="0.1"></div>
+                <div><label>Fat</label><input id="editFat" type="number" step="0.1"></div>
+                <div><label>Carbs</label><input id="editCarb" type="number" step="0.1"></div>
+                <div><label>Fiber</label><input id="editFiber" type="number" step="0.1"></div>
+                <div><label>Sugar</label><input id="editSugar" type="number" step="0.1"></div>
+                <div><label>Sodium</label><input id="editSodium" type="number"></div>
+            </div>
+            <div class="row mt12">
+                <button id="saveFullEditBtn">Save</button>
+                <button class="secondary" id="cancelFullEditBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="quickProductModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="quickModalTitle">Add Product</h3>
+                <button class="modal-close" id="closeQuickModalBtn">×</button>
+            </div>
+            <div class="grid" style="grid-template-columns:1fr 1fr">
+                <div style="grid-column:1/-1"><label>Name *</label><input id="quickModalName"></div>
+                <div style="grid-column:1/-1"><label>Emoji</label><input id="quickModalEmoji" maxlength="2"></div>
+                <div><label>Portion (g) *</label><input id="quickModalPortion" type="number" value="100"></div>
+                <div><label>Calories *</label><input id="quickModalCal" type="number" value="0"></div>
+                <div><label>Protein *</label><input id="quickModalPr" type="number" value="0" step="0.1"></div>
+                <div><label>Fat *</label><input id="quickModalFat" type="number" value="0" step="0.1"></div>
+                <div style="grid-column:1/-1"><label>Carbs *</label><input id="quickModalCarb" type="number" value="0" step="0.1"></div>
+            </div>
+            <div class="row mt12" style="justify-content:flex-end">
+                <button class="secondary" id="cancelQuickModalBtn">Cancel</button>
+                <button id="saveQuickProductBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insert quick product edit modal from HTML_UPDATES -->
+    <div class="modal" id="editQuickProductModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✎ Edit Quick Product</h3>
+                <button class="xbtn" id="closeEditQuickModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <label>Name</label>
+                <input type="text" id="editQuickName" placeholder="Dish name">
+                
+                <label class="mt8">Portion (g)</label>
+                <input type="number" id="editQuickPortion" placeholder="100">
+                
+                <div class="grid mt8" style="grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                    <div>
+                        <label>Calories</label>
+                        <input type="number" id="editQuickCal" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Protein (g)</label>
+                        <input type="number" step="0.1" id="editQuickPr" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Fat (g)</label>
+                        <input type="number" step="0.1" id="editQuickFat" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Carbs (g)</label>
+                        <input type="number" step="0.1" id="editQuickCarb" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Fiber (g)</label>
+                        <input type="number" step="0.1" id="editQuickFiber" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Sugar (g)</label>
+                        <input type="number" step="0.1" id="editQuickSugar" placeholder="0">
+                    </div>
+                    <div>
+                        <label>Sodium (mg)</label>
+                        <input type="number" id="editQuickSodium" placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                <div class="row">
+                    <button id="saveEditQuickBtn">💾 Save</button>
+                    <button class="secondary" id="cancelEditQuickBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for menu builder -->
+    <div class="modal" id="mealSelectorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Dish</h3>
+                <button class="modal-close" id="closeMealSelectorBtn">×</button>
+            </div>
+            <div class="food-search">
+                <input type="text" id="mealSearchInput" placeholder="Search dishes...">
+                <div id="mealSearchResults" class="search-results"></div>
+            </div>
+            <div class="food-library mt12" id="modalFoodLibrary" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Include app data and logic (version 3) -->
+    <script src="data 3.js"></script>
+    <script src="app 3.js"></script>
+</body>
+</html>
