@@ -1,4 +1,4 @@
-/* ===== БАЗА ДАННЫХ ПРОДУКТОВ ===== */
+/* ===== БАЗА ДАННЫХ ПРОДУКТОВ (КБЖУ на 100 г) ===== */
 const foodDatabase = [
     {name:"Овсянка на молоке", cal:150, pr:5, fat:3, carb:27, emoji:"🥣", fiber:2.5, sugar:6, sodium:80, allergens:["молоко"]},
     {name:"Яичница (2 яйца)", cal:180, pr:12, fat:14, carb:2, emoji:"🍳", fiber:0, sugar:0, sodium:150, allergens:["яйца"]},
@@ -52,7 +52,7 @@ const foodDatabase = [
     {name:"Клубника", cal:32, pr:0.7, fat:0.3, carb:8, emoji:"🍓", fiber:2, sugar:4.9, sodium:1, allergens:[]}
 ];
 
-/* ===== КАТЕГОРИИ ПРОДУКТОВ ДЛЯ ПОКУПОК ===== */
+/* ===== КАТЕГОРИИ ПРОДУКТОВ ===== */
 const foodCategories = {
     "Овощи": ["Огурец", "Помидор", "Брокколи", "Морковь", "Лук репчатый", "Чеснок", "Шпинат"],
     "Фрукты": ["Яблоко", "Банан", "Апельсин", "Лимон", "Виноград", "Клубника", "Авокадо"],
@@ -60,11 +60,12 @@ const foodCategories = {
     "Мясо и птица": ["Куриная грудка гриль", "Котлеты говяжьи", "Куриное бедро"],
     "Рыба и морепродукты": ["Рыба запечённая", "Лосось на гриле", "Минтай", "Семга запечённая"],
     "Крупы и злаки": ["Овсянка на молоке", "Гречка варёная", "Рис варёный", "Макароны варёные"],
+    "Готовые блюда": ["Борщ со сметаной", "Щи", "Куриный суп", "Плов с курицей", "Пельмени", "Блины с творогом", "Яичница (2 яйца)", "Салат овощной", "Салат Оливье", "Картофель варёный"],
     "Напитки": ["Кофе американо", "Апельсиновый сок", "Зеленый чай"],
     "Прочее": ["Мед", "Оливковое масло", "Грецкие орехи", "Хлеб ржаной", "Хлеб белый"]
 };
 
-/* ===== МЕНЮ ПО ГОРОДАМ И ДНЯМ ===== */
+/* ===== ВСТРОЕННЫЕ МЕНЮ ПО ГОРОДАМ И ДНЯМ ===== */
 const cityMenus = {
     "Санкт-Петербург": {
         1: {
@@ -83,37 +84,36 @@ const cityMenus = {
             dinner: {name:"Треска запечённая с бурым рисом, брокколи и морковью на пару", cal:380, pr:34, fat:5, carb:50, emoji:"🐟"}
         }
     },
-   //* "Москва": {
-    //*    1: {
-    //*        breakfast: {name:"Блины с маслом и сметаной", cal:320, pr:8, fat:12, carb:45, emoji:"🥞"},
-     //*       lunch: {name:"Солянка + пирожок с мясом", cal:620, pr:25, fat:22, carb:72, emoji:"🥣"},
-     //*       dinner: {name:"Стейк с картофелем фри и овощами", cal:580, pr:38, fat:24, carb:48, emoji:"🥩"}
-     //*   },
-     //*  2: {
-      //*      breakfast: {name:"Творожная запеканка с изюмом и сметаной", cal:280, pr:18, fat:10, carb:28, emoji:"🧀"},
-     //*      lunch: {name:"Уха + котлеты с гречкой", cal:520, pr:32, fat:15, carb:55, emoji:"🍜"},
-      //*      dinner: {name:"Курица по-французски с картофелем и сыром", cal:450, pr:28, fat:20, carb:35, emoji:"🍗"}
-     //*   }
-  //*  },
-  //*  "Токио": {
-   //*     1: {
-   //*         breakfast: {name:"Рис + омлет тамаго", cal:320, pr:12, fat:8, carb:52, emoji:"🍚"},
-    //*        lunch: {name:"Мисо суп + курица терияки с рисом", cal:560, pr:30, fat:14, carb:75, emoji:"🍜"},
-    //*        dinner: {name:"Лосось + рис + салат", cal:520, pr:32, fat:16, carb:60, emoji:"🍱"}
-    //*    },
-    //*    2: {
-    //*        breakfast: {name:"Рисовая каша + маринованные овощи", cal:280, pr:6, fat:2, carb:58, emoji:"🍚"},
-    //*       lunch: {name:"Рамен с курицей и яйцом", cal:480, pr:25, fat:15, carb:62, emoji:"🍜"},
-     //*       dinner: {name:"Якитори + салат с тофу и рис", cal:420, pr:28, fat:12, carb:48, emoji:"🍗"}
-    //*    }
-   //* }
+    "Москва": {
+        1: {
+            breakfast: {name:"Блины с маслом и сметаной", cal:320, pr:8, fat:12, carb:45, emoji:"🥞"},
+            lunch: {name:"Солянка + пирожок с мясом", cal:620, pr:25, fat:22, carb:72, emoji:"🥣"},
+            dinner: {name:"Стейк с картофелем фри и овощами", cal:580, pr:38, fat:24, carb:48, emoji:"🥩"}
+        },
+        2: {
+            breakfast: {name:"Творожная запеканка с изюмом и сметаной", cal:280, pr:18, fat:10, carb:28, emoji:"🧀"},
+            lunch: {name:"Уха + котлеты с гречкой", cal:520, pr:32, fat:15, carb:55, emoji:"🍜"},
+            dinner: {name:"Курица по-французски с картофелем и сыром", cal:450, pr:28, fat:20, carb:35, emoji:"🍗"}
+        }
+    },
+    "Токио": {
+        1: {
+            breakfast: {name:"Рис + омлет тамаго", cal:320, pr:12, fat:8, carb:52, emoji:"🍚"},
+            lunch: {name:"Мисо суп + курица терияки с рисом", cal:560, pr:30, fat:14, carb:75, emoji:"🍜"},
+            dinner: {name:"Лосось + рис + салат", cal:520, pr:32, fat:16, carb:60, emoji:"🍱"}
+        },
+        2: {
+            breakfast: {name:"Рисовая каша + маринованные овощи", cal:280, pr:6, fat:2, carb:58, emoji:"🍚"},
+            lunch: {name:"Рамен с курицей и яйцом", cal:480, pr:25, fat:15, carb:62, emoji:"🍜"},
+            dinner: {name:"Якитори + салат с тофу и рис", cal:420, pr:28, fat:12, carb:48, emoji:"🍗"}
+        }
+    }
 };
 
 /* ===== ВСТРОЕННЫЕ МЕНЮ (оставлены для совместимости) ===== */
 const builtInMenus = cityMenus;
 
 /* ===== СОСТОЯНИЕ ПО УМОЛЧАНИЮ ===== */
-// Incremented to 7 to reflect new fields (allergies) and vitamin tracking
 const APP_VERSION = 7;
 const defaultState = {
     version: APP_VERSION,
@@ -123,7 +123,6 @@ const defaultState = {
             id:"adult1", name:"Взрослый 1", emoji:"👨",
             goals:{cal:2200, pr:110, fat:70, carb:260},
             goalsMicros:{fiber:25,sugar:50,sodium:2300},
-            // список аллергенов для данного профиля
             allergies: [],
             liquid:{
                 totalGoal: 2000,
@@ -154,13 +153,13 @@ const defaultState = {
         }
     ],
     settings:{
-        modules:{ 
-            water:false, 
-            recipes:false, 
-            micros:false, 
-            goalsCalc:false, 
+        modules:{
+            water:false,
+            recipes:false,
+            micros:false,
+            goalsCalc:false,
             weekPlanner:false,
-            shopping:false 
+            shopping:false
         },
         theme:"light"
     },

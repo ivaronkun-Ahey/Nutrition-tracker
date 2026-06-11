@@ -1,110 +1,92 @@
-# Nutrition-tracker
+# 🥗 Трекер питания / Nutrition Tracker
 
+Семейный трекер питания, который работает целиком в браузере: без установки, без сервера, все данные хранятся локально на вашем устройстве.
 
-## 🏃‍♂️ Quick Start
+## 🏃 Быстрый старт
 
-1. **Open the application**: Download all files to one folder and open `index 3.html` in your browser
-2. **Set up profiles**: Add family members in settings
-3. **Set goals**: Configure individual nutrition goals for each profile
-4. **Start tracking**: Add meals through the "Add" tab
+1. Скачайте файлы приложения в одну папку и откройте **`index.html`** в браузере (Chrome, Firefox, Safari, Edge).
+2. В настройках создайте профили членов семьи и задайте цели питания (или посчитайте их встроенным калькулятором).
+3. Ведите дневник: на главном экране у каждого приёма пищи есть кнопка **«+ Добавить»**.
 
-## 👥 Profile Management
+> English version of the app lives in the `Eng version` folder (previous-generation interface).
 
-- Create unlimited profiles
-- Individual goals for calories, proteins, fats, carbohydrates
-- Allergen configuration 
-- Personal quick products
+## 📅 Дневник — главный экран
 
-## 📊 Analytics & Reports
+- Кольцо калорий: сколько съедено, сколько осталось до цели (перерасход подсвечивается).
+- Полосы прогресса по белкам, жирам и углеводам с остатком в граммах.
+- Четыре приёма пищи: завтрак, обед, ужин, перекус — добавление еды прямо из карточки.
+- Редактирование записи по клику: порция слайдером, полное редактирование всех полей, избранное, удаление.
+- Навигация по датам: стрелки, выбор даты в календаре, кнопка «К сегодня».
+- Блюда с вашими аллергенами помечаются, при добавлении показывается предупреждение.
 
-- **Calorie charts** for 7 days
-- **Macronutrient distribution** in pie charts
-- **Micronutrients**: fiber, sugar, sodium
-- **30-day statistics**: average metrics, days with goal completion
-- **Achievements**: diary streak, macronutrient balance, dietary variety
+## ➕ Добавление еды (единое окно)
 
-## 🍽 Product Management
+- **Поиск** по базе из 50+ продуктов и вашим сохранённым продуктам; без запроса — обзор по категориям и избранное.
+- Выбор **порции в граммах** (слайдер, пресеты, точный ввод) с пересчётом КБЖУ до добавления.
+- **Быстрые продукты** — ваши наборы по приёмам пищи, добавление в одно касание.
+- **Недавние** — автоматический список того, что вы уже добавляли.
+- **Ручной ввод** со всеми полями (калории, БЖУ, клетчатка, сахар, натрий) и сохранением в свои продукты.
 
-### Built-in Database
-- 40+ pre-configured products with complete nutritional information
-- Product categories for easy navigation
+## 👥 Профили
 
-### Custom Products
-- Add your own products
-- Save to library for reuse
-- Edit and delete custom products
+- Неограниченное число профилей, у каждого свои цели КБЖУ, микронутриентов, аллергены, быстрые продукты и настройки напитков.
+- Переключение профиля — в шапке приложения.
 
-## 🌐 City Menus
+## 🌍 Меню по городам
 
-### Built-in Menus
-- Saint Petersburg, Moscow, Tokyo
-- Multi-day menus with complete dish descriptions with additioanal files
+- Встроенные меню: Санкт-Петербург, Москва, Токио.
+- Загрузка собственных меню из CSV (пример формата — `processed_city_menu_rus_detailed.csv`: до 30 дней, КБЖУ, витамины, аллергены, микронутриенты).
+- Добавление в дневник одного блюда или всего дня сразу; итоги дня по КБЖУ.
 
-### CSV Import
-- Load your own menus in CSV format
-- Support for structure with days, meals, nutritional information
+## 📚 Продукты
 
-## 💾 Data Management
+- **Мои продукты**: создание, редактирование и удаление собственных продуктов (КБЖУ на 100 г) — они доступны в поиске.
+- **Быстрые продукты**: до 8 продуктов на каждый приём пищи для каждого профиля. Заполнение перетаскиванием или кнопкой «+» из библиотеки, редактирование, импорт/экспорт JSON.
 
-### Import/Export
-- Export all data to JSON
-- Import data from JSON files
-- Settings backup
+## 📊 Аналитика
 
-### Local Storage
-- All data stored in browser localStorage
-- Automatic saving on changes
-- Data migration during version updates
+- График калорий за 7 дней с линией цели.
+- Диаграмма распределения БЖУ за день.
+- Статистика за 30 дней: заполненные дни, средние значения, дни в цели, лучший день, баланс БЖУ.
+- Достижения: серия дней, водный баланс, идеальный баланс БЖУ, разнообразие рациона.
+- Микронутриенты (модуль): клетчатка, сахар, натрий и витамины из загруженных меню.
 
-## 🎨 Interface
+## 🔧 Модули (включаются в настройках)
 
-- **Intuitive design** with cards and grids
-- **Responsive layout** for mobile devices
-- **Progress bars** for goal visualization
-- **Drag & Drop** for quick product addition
-- **Modal windows** for editing and settings
+| Модуль | Что даёт |
+|---|---|
+| 💧 Трекер воды | Напитки с коэффициентами гидратации, свои типы напитков, календарь истории |
+| 👨‍🍳 Рецепты | Свои блюда из ингредиентов с авторасчётом КБЖУ на порцию |
+| 💊 Микронутриенты | Клетчатка, сахар, натрий, витамины + цели по ним |
+| 🧮 Калькулятор целей | Расчёт нормы калорий и БЖУ (Миффлин — Сан-Жеор) |
+| 🗓 План недели | Рецепты по дням недели с переносом в дневник |
+| 🛒 Покупки | Список покупок из дневника и меню, категории, печать, экспорт |
 
-## 🔧 Settings
+## 💾 Данные
 
-### Modules
-Enable/disable needed modules:
-- Liquid tracker
-- Recipes
-- Micronutrients
-- Goal calculator
-- Weekly planner
-- Shopping list
+- Всё хранится в `localStorage` браузера — ничего не отправляется на серверы.
+- Экспорт и импорт всех данных в JSON (настройки → «Данные»).
+- Данные из предыдущих версий приложения подхватываются автоматически (тот же ключ хранилища и миграции).
 
-### Appearance
-- Light/dark theme
-- Automatic system theme detection
+## 📁 Структура проекта
 
-## 📱 Compatibility
+| Файл | Назначение |
+|---|---|
+| `index.html` | Разметка приложения |
+| `styles.css` | Стили (светлая и тёмная темы) |
+| `app.js` | Логика приложения |
+| `data.js` | База продуктов, категории, встроенные меню, состояние по умолчанию |
+| `processed_city_menu_rus_detailed.csv` | Пример меню для загрузки через CSV |
+| `Eng version/` | Английская версия (прежний интерфейс) |
 
-- **Browsers**: Chrome, Firefox, Safari, Edge (latest versions)
-- **Devices**: Desktop, tablets, mobile phones
-- **Requirements**: Modern browser with ES6+ support
+## 📱 Совместимость
 
-## 🚨 Security Features
+- Рассчитано в первую очередь на планшет и компьютер, адаптировано и под телефон.
+- Требуется современный браузер с поддержкой ES6+.
+- Для отрисовки графиков аналитики нужен интернет при первом открытии (Chart.js подключается с CDN); всё остальное работает офлайн.
 
-- **Local storage**: All data remains on your device
-- **Privacy**: No data is sent to servers
-- **Allergens**: System warns about potentially dangerous products
+## 💡 Советы
 
-## 🔄 Data Migration
-
-Application automatically migrates data during updates:
-- Version 6 → 7: Added allergens and micronutrient goals
-- Backward compatibility maintained
-
-## 💡 Usage Tips
-
-1. **Consistency**: Maintain diary daily for accurate statistics
-2. **Quick Products**: Set up frequently used products to save time
-3. **Planning**: Use weekly planner for meal organization
-4. **Analysis**: Regularly review analytics to adjust goals
-5. **Backups**: Export data before browser cleanup
-
----
-
-*The application runs completely in the browser and doesn't require additional software installation.*
+1. Настройте быстрые продукты под привычные завтраки/обеды — добавление займёт пару секунд.
+2. Пользуйтесь вкладкой «Недавние» в окне добавления — она заполняется сама.
+3. Делайте экспорт данных перед чисткой браузера.
