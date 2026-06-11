@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Трекер питания</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+    <!-- ===== БОКОВАЯ НАВИГАЦИЯ (планшет/ПК) ===== -->
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-icon">🥗</span>
+            <span class="brand-name">Трекер питания</span>
+        </div>
+        <nav class="nav" id="sideNav" aria-label="Основная навигация"></nav>
+        <div class="sidebar-foot">Данные хранятся только на этом устройстве</div>
+    </aside>
+
+    <!-- ===== ОСНОВНАЯ ОБЛАСТЬ ===== -->
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-brand">🥗</span>
+                <h1 class="topbar-title" id="topbarTitle">Дневник</h1>
+            </div>
+            <div class="user-selector" id="userSelector" aria-label="Профили"></div>
+        </header>
+
+        <!-- Горизонтальная навигация для узких экранов -->
+        <nav class="mobile-nav" id="mobileNav" aria-label="Навигация"></nav>
+
+        <main class="content">
+
+            <!-- ===== ДНЕВНИК ===== -->
+            <section class="view" id="view-diary">
+                <div class="day-nav card">
+                    <button class="icon-btn" id="prevDayBtn" title="Предыдущий день" aria-label="Предыдущий день">‹</button>
+                    <div class="day-nav-center">
+                        <label class="date-display" for="datePicker">
+                            <span id="currentDateLbl">Сегодня</span>
+                            <input type="date" id="datePicker" class="date-input" aria-label="Выбрать дату">
+                        </label>
+                        <button class="ghost-btn" id="todayBtn">К сегодня</button>
+                    </div>
+                    <button class="icon-btn" id="nextDayBtn" title="Следующий день" aria-label="Следующий день">›</button>
+                </div>
+
+                <div class="diary-layout">
+                    <!-- Сводка дня -->
+                    <aside class="diary-summary">
+                        <div class="card summary-card">
+                            <div class="ring-wrap">
+                                <svg viewBox="0 0 120 120" class="cal-ring" aria-hidden="true">
+                                    <circle class="ring-bg" cx="60" cy="60" r="52"/>
+                                    <circle class="ring-fill" id="calRingFill" cx="60" cy="60" r="52"/>
+                                </svg>
+                                <div class="ring-center">
+                                    <div class="ring-value" id="calRemaining">0</div>
+                                    <div class="ring-label" id="calRemainingLbl">осталось ккал</div>
+                                </div>
+                            </div>
+                            <div class="ring-meta">
+                                <div class="ring-meta-item"><span class="muted">Съедено</span><b id="calEaten">0</b></div>
+                                <div class="ring-meta-item"><span class="muted">Цель</span><b id="calGoal">0</b></div>
+                            </div>
+                            <div class="macro-bars" id="macroBars"></div>
+                            <div id="microSummary"></div>
+                        </div>
+                        <div class="card water-mini" id="waterSummary" hidden>
+                            <div class="water-mini-head">
+                                <span>💧 Вода</span>
+                                <b id="waterMiniLabel">0 / 0 мл</b>
+                            </div>
+                            <div class="progress-track"><div class="progress-fill water" id="waterMiniBar"></div></div>
+                            <div class="water-mini-actions">
+                                <button class="ghost-btn" id="waterQuickAdd">+ 250 мл</button>
+                                <button class="ghost-btn" id="waterGoTo">Открыть трекер</button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Приёмы пищи -->
+                    <div class="meals" id="mealsWrap"></div>
+                </div>
+            </section>
+
+            <!-- ===== МЕНЮ ПО ГОРОДАМ ===== -->
+            <section class="view" id="view-menu">
+                <div class="card">
+                    <div class="card-head">
+                        <h3>Готовые меню по городам</h3>
+                        <button class="secondary" id="loadMenuCSVBtn">📂 Загрузить из CSV</button>
+                        <input type="file" id="menuCSVFileInput" accept=".csv" hidden>
+                    </div>
+                    <p class="muted small">Выберите город и день — блюда можно добавить в дневник по одному или сразу всем днём. Свои меню загружаются из CSV-файла (пример — <code>processed_city_menu_rus_detailed.csv</code> в папке приложения).</p>
+                    <div class="chip-row" id="citiesButtons"></div>
+                    <div class="day-strip-label muted small">День меню:</div>
+                    <div class="day-strip" id="dayCalendar"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-head">
+                        <h3 id="cityMenuHeader">Меню</h3>
+                        <button id="addCityMenuToDiaryBtn">+ Весь день в дневник</button>
+                    </div>
+                    <div id="cityMenuDisplay" class="city-menu-grid"></div>
+                    <div id="cityMenuTotals" class="menu-totals"></div>
+                </div>
+            </section>
+
+            <!-- ===== ПРОДУКТЫ ===== -->
+            <section class="view" id="view-products">
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Мои продукты</h3>
+                            <button id="newMyProductBtn">+ Новый продукт</button>
+                        </div>
+                        <p class="muted small">Сохранённые продукты доступны в поиске при добавлении еды. КБЖУ указывается на 100 г.</p>
+                        <div id="myProductsList" class="list"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Быстрые продукты</h3>
+                        <p class="muted small">До 8 продуктов на каждый приём пищи — они появятся кнопками в окне «Добавить еду». Нажмите на пустой слот или перетащите продукт из библиотеки.</p>
+                        <div class="row wrap">
+                            <label class="inline-label">Профиль
+                                <select id="quickProfileSelect"></select>
+                            </label>
+                        </div>
+                        <div class="seg-row" id="quickMealTabs">
+                            <button data-meal="breakfast" class="active">🌅 Завтрак</button>
+                            <button data-meal="lunch">☀️ Обед</button>
+                            <button data-meal="dinner">🌙 Ужин</button>
+                            <button data-meal="snack">🍎 Перекус</button>
+                        </div>
+                        <div class="quick-slots" id="quickSlotsGrid"></div>
+                        <div class="food-panel">
+                            <h4>Библиотека продуктов</h4>
+                            <input type="text" id="quickFoodSearch" placeholder="Поиск продуктов...">
+                            <div class="food-library" id="quickFoodLibrary"></div>
+                        </div>
+                        <div class="row wrap">
+                            <button id="clearQuickProductsBtn" class="danger ghost">Очистить приём</button>
+                            <button id="loadQuickProductsJSONBtn" class="secondary">Импорт JSON</button>
+                            <button id="exportQuickProductsJSONBtn" class="secondary">Экспорт JSON</button>
+                        </div>
+                        <input type="file" id="quickProductsJSONInput" accept=".json" hidden>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== АНАЛИТИКА ===== -->
+            <section class="view" id="view-analytics">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Калории за неделю</h3>
+                        <div class="chart-container">
+                            <canvas id="caloriesChart"></canvas>
+                            <div class="chart-fallback muted" id="caloriesChartFallback" hidden>Для графиков нужен доступ в интернет при первом открытии страницы.</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Распределение БЖУ за день</h3>
+                        <div class="chart-container">
+                            <canvas id="macrosChart"></canvas>
+                            <div class="chart-fallback muted" id="macrosChartFallback" hidden></div>
+                        </div>
+                        <div id="macrosLegend" class="macros-legend"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Статистика за 30 дней</h3>
+                    <div id="monthStats"></div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Достижения</h3>
+                        <div id="achievements"></div>
+                    </div>
+                    <div class="card" id="vitaminsCard" hidden>
+                        <h3>Микронутриенты за день</h3>
+                        <div class="micro-bars" id="microsWrap"></div>
+                        <div class="mt12">
+                            <h4>Витамины в съеденных блюдах</h4>
+                            <div id="vitaminsList" class="pill-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== ПОКУПКИ ===== -->
+            <section class="view" id="view-shopping">
+                <div class="grid-shopping">
+                    <div class="card">
+                        <h3>Источники</h3>
+                        <label>Из дневника (от текущей даты)</label>
+                        <select id="shoppingDays">
+                            <option value="1">1 день</option>
+                            <option value="3">3 дня</option>
+                            <option value="7" selected>Неделя</option>
+                        </select>
+                        <label class="mt12">Из выбранного меню города</label>
+                        <select id="shoppingMenuDays">
+                            <option value="0">Не использовать</option>
+                            <option value="3">3 дня</option>
+                            <option value="7">Неделя</option>
+                        </select>
+                        <div class="row wrap mt12">
+                            <button id="genShoppingBtn">Сформировать</button>
+                            <button class="secondary" id="smartShoppingBtn">🎯 Умный список</button>
+                        </div>
+                        <div class="mt12">
+                            <h4>Часто покупаемое</h4>
+                            <div id="frequentItems" class="chip-row"></div>
+                        </div>
+                    </div>
+
+                    <div class="card" id="shoppingListCard">
+                        <div class="card-head">
+                            <h3>Список покупок</h3>
+                            <div class="row">
+                                <button id="exportShoppingBtn" class="secondary">Экспорт</button>
+                                <button id="printShoppingBtn" class="secondary">🖨 Печать</button>
+                            </div>
+                        </div>
+                        <div class="row wrap">
+                            <button id="checkAllBtn" class="ghost-btn">✓ Отметить все</button>
+                            <button id="uncheckAllBtn" class="ghost-btn">✗ Снять все</button>
+                            <button id="clearCheckedBtn" class="ghost-btn danger-text">Удалить отмеченные</button>
+                        </div>
+                        <div id="shoppingListBox" class="list">
+                            <div class="empty-state">Нажмите «Сформировать» — список соберётся из блюд дневника и меню</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>По категориям</h3>
+                        <div id="shoppingCategories" class="list">
+                            <div class="empty-state">Список будет сгруппирован по категориям</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== ВОДА ===== -->
+            <section class="view" id="view-water">
+                <div class="grid-2">
+                    <div class="card water-progress-card">
+                        <h3>Гидратация за день</h3>
+                        <div class="progress-overview">
+                            <div class="circular-progress">
+                                <svg viewBox="0 0 36 36" class="circle-chart" aria-hidden="true">
+                                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="circle" id="waterProgressCircle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-dasharray="0,100"/>
+                                </svg>
+                                <div class="progress-text"><span id="waterProgressPct">0%</span></div>
+                            </div>
+                            <div class="progress-details">
+                                <div>Выпито: <b id="waterConsumedLabel">0</b> мл</div>
+                                <div>Цель: <b id="waterGoalLabel">0</b> мл</div>
+                                <div class="muted small">с учётом коэффициентов гидратации</div>
+                            </div>
+                        </div>
+                        <div id="drinkIndicators" class="drink-indicators"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Добавить напиток</h3>
+                        <label class="inline-label">Напиток
+                            <select id="waterDrinkSelect"></select>
+                        </label>
+                        <div class="chip-row mt12">
+                            <button type="button" class="chip preset-btn" data-amount="100">100</button>
+                            <button type="button" class="chip preset-btn" data-amount="200">200</button>
+                            <button type="button" class="chip preset-btn" data-amount="250">250</button>
+                            <button type="button" class="chip preset-btn" data-amount="330">330</button>
+                            <button type="button" class="chip preset-btn" data-amount="500">500</button>
+                            <button type="button" class="chip preset-btn" data-amount="750">750</button>
+                        </div>
+                        <label class="mt12">Количество: <b id="waterVolumeDisplay">250 мл</b></label>
+                        <input type="range" id="waterVolumeSlider" min="50" max="1000" step="50" value="250">
+                        <div class="row mt8">
+                            <input type="number" id="waterCustomInput" placeholder="Своё количество (мл)" min="0" max="2000">
+                            <button type="button" id="waterSetCustomBtn" class="secondary">Задать</button>
+                        </div>
+                        <button type="button" id="waterAddBtn" class="big mt12">💧 Добавить</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head">
+                            <h3>Типы напитков</h3>
+                            <button type="button" id="addDrinkTypeBtn" class="secondary">+ Свой тип</button>
+                        </div>
+                        <div id="waterTypesList" class="list"></div>
+                        <div id="newDrinkForm" class="subform" hidden>
+                            <div class="row wrap">
+                                <input type="text" id="newDrinkName" placeholder="Название" style="flex:1;min-width:120px">
+                                <input type="text" id="newDrinkEmoji" placeholder="🥤" maxlength="4" style="width:64px">
+                                <input type="color" id="newDrinkColor" value="#06b6d4" style="width:48px;padding:2px">
+                            </div>
+                            <div class="row wrap mt8">
+                                <label class="inline-label">Цель (мл)<input type="number" id="newDrinkGoal" min="50" value="200"></label>
+                                <label class="inline-label">Гидратация (0.3–1)<input type="number" id="newDrinkHydration" step="0.1" min="0.3" max="1.0" value="0.7"></label>
+                            </div>
+                            <div class="row mt8">
+                                <button type="button" id="saveNewDrinkBtn">Сохранить</button>
+                                <button type="button" id="cancelNewDrinkBtn" class="secondary">Отмена</button>
+                            </div>
+                        </div>
+                        <div class="divider"></div>
+                        <button type="button" id="resetLiquidBtn" class="ghost-btn danger-text">Сбросить день</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>История</h3>
+                        <div class="row spread">
+                            <button type="button" id="waterPrevMonth" class="icon-btn" aria-label="Предыдущий месяц">‹</button>
+                            <div id="waterCalendarTitle" class="cal-title"></div>
+                            <button type="button" id="waterNextMonth" class="icon-btn" aria-label="Следующий месяц">›</button>
+                        </div>
+                        <div class="calendar-weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+                        <div id="waterCalendar" class="calendar"></div>
+                        <div id="waterDayDetails" class="mt12"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== РЕЦЕПТЫ ===== -->
+            <section class="view" id="view-recipes">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Мои рецепты</h3>
+                        <p class="muted small">КБЖУ рассчитывается автоматически из ингредиентов на одну порцию.</p>
+                        <div id="recipesList" class="list"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Создать рецепт</h3>
+                        <label>Название</label>
+                        <input id="recName" placeholder="Например: Борщ классический">
+                        <label class="mt12">Добавить ингредиент</label>
+                        <div class="search-wrap">
+                            <input id="recSearch" placeholder="Поиск ингредиента...">
+                            <div id="recSearchResults" class="search-results"></div>
+                        </div>
+                        <div id="recIngrBox" class="list mt12"></div>
+                        <div class="row wrap mt12">
+                            <label class="inline-label">Порций<input id="recServings" type="number" value="4" min="1" style="width:90px"></label>
+                            <button id="saveRecipeBtn">Сохранить рецепт</button>
+                        </div>
+                        <div id="recMacrosSum" class="muted small mt8"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== ПЛАН НЕДЕЛИ ===== -->
+            <section class="view" id="view-week">
+                <div class="card">
+                    <div class="row spread wrap">
+                        <button id="prevWeekBtn" class="secondary">‹ Пред. неделя</button>
+                        <div class="cal-title" id="weekStartLbl"></div>
+                        <button id="nextWeekBtn" class="secondary">След. неделя ›</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <p class="muted small">Распланируйте рецепты по дням недели, затем сохраните или добавьте всю неделю в дневник.</p>
+                    <div id="weekTableWrap" class="week-table-wrap"></div>
+                    <div class="row mt12">
+                        <button id="saveWeekPlanBtn">💾 Сохранить план</button>
+                        <button id="applyWeekPlanToDiaryBtn" class="secondary">+ Всю неделю в дневник</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== НАСТРОЙКИ ===== -->
+            <section class="view" id="view-settings">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Профили</h3>
+                        <div id="profilesList" class="list"></div>
+                        <div class="row mt12">
+                            <input id="newProfileName" placeholder="Имя" style="flex:1">
+                            <input id="newProfileEmoji" placeholder="😊" maxlength="4" style="width:64px">
+                            <button id="addProfileBtn">Добавить</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Цели питания</h3>
+                        <div id="goalsBox"></div>
+                    </div>
+
+                    <div class="card" id="goalsCalcCard" hidden>
+                        <h3>Калькулятор целей</h3>
+                        <p class="muted small">Расчёт по формуле Миффлина — Сан-Жеора. Результат сразу записывается в цели выбранного профиля.</p>
+                        <div class="calc-grid">
+                            <label class="inline-label">Профиль<select id="calcProfileSelect"></select></label>
+                            <label class="inline-label">Пол<select id="calcSex">
+                                <option value="m">Мужчина</option>
+                                <option value="f">Женщина</option>
+                            </select></label>
+                            <label class="inline-label">Возраст<input id="calcAge" type="number" value="30"></label>
+                            <label class="inline-label">Рост, см<input id="calcHeight" type="number" value="175"></label>
+                            <label class="inline-label">Вес, кг<input id="calcWeight" type="number" value="70"></label>
+                            <label class="inline-label">Активность<select id="calcAct">
+                                <option value="1.2">Низкая</option>
+                                <option value="1.375">Лёгкая</option>
+                                <option value="1.55" selected>Средняя</option>
+                                <option value="1.725">Высокая</option>
+                                <option value="1.9">Очень высокая</option>
+                            </select></label>
+                            <label class="inline-label">Цель<select id="calcGoal">
+                                <option value="-0.2">Похудение −20%</option>
+                                <option value="-0.1">Похудение −10%</option>
+                                <option value="0" selected>Поддержание</option>
+                                <option value="0.1">Набор +10%</option>
+                            </select></label>
+                        </div>
+                        <div class="row wrap mt12">
+                            <button id="calcDoBtn">Рассчитать и применить</button>
+                            <div id="calcOut" class="pill">—</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Модули</h3>
+                        <p class="muted small">Включайте только то, чем пользуетесь — лишние разделы не будут загромождать навигацию.</p>
+                        <div class="modules-list">
+                            <label class="switch-row"><span>💧 Трекер воды<small>Напитки, цели гидратации, календарь</small></span><input type="checkbox" id="modWater"><i class="switch"></i></label>
+                            <label class="switch-row"><span>👨‍🍳 Рецепты<small>Свои блюда из ингредиентов</small></span><input type="checkbox" id="modRecipes"><i class="switch"></i></label>
+                            <label class="switch-row"><span>💊 Микронутриенты<small>Клетчатка, сахар, натрий, витамины</small></span><input type="checkbox" id="modMicros"><i class="switch"></i></label>
+                            <label class="switch-row"><span>🧮 Калькулятор целей<small>Расчёт нормы калорий и БЖУ</small></span><input type="checkbox" id="modGoalsCalc"><i class="switch"></i></label>
+                            <label class="switch-row"><span>🗓 План недели<small>Рецепты по дням недели</small></span><input type="checkbox" id="modWeek"><i class="switch"></i></label>
+                            <label class="switch-row"><span>🛒 Покупки<small>Список покупок из дневника и меню</small></span><input type="checkbox" id="modShopping"><i class="switch"></i></label>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Тема оформления</h3>
+                        <div class="seg-row" id="themeSeg">
+                            <button data-theme-opt="light" id="themeLight">☀️ Светлая</button>
+                            <button data-theme-opt="dark" id="themeDark">🌙 Тёмная</button>
+                            <button data-theme-opt="system" id="themeSystem">💻 Как в системе</button>
+                        </div>
+                    </div>
+
+                    <div class="card" id="allergiesCard">
+                        <div class="card-head">
+                            <h3>Аллергены</h3>
+                            <select id="allergyProfileSelect" style="max-width:180px"></select>
+                        </div>
+                        <p class="muted small">Блюда с этими аллергенами будут помечены в дневнике, а при добавлении появится предупреждение.</p>
+                        <div id="allergiesList" class="chip-row"></div>
+                        <div class="row mt12">
+                            <select id="newAllergenSelect" style="flex:1">
+                                <option value="" disabled selected>Выберите аллерген</option>
+                                <option value="молоко">Молоко</option>
+                                <option value="яйца">Яйца</option>
+                                <option value="рыба">Рыба</option>
+                                <option value="морепродукты">Морепродукты</option>
+                                <option value="орехи">Орехи</option>
+                                <option value="арахис">Арахис</option>
+                                <option value="пшеница">Пшеница (глютен)</option>
+                                <option value="соя">Соя</option>
+                                <option value="кунжут">Кунжут</option>
+                            </select>
+                            <button id="addAllergenBtn">Добавить</button>
+                        </div>
+                    </div>
+
+                    <div class="card" id="microsGoalsCard" hidden>
+                        <h3>Цели микронутриентов</h3>
+                        <div id="microsGoalsBox"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Данные</h3>
+                        <p class="muted small">Всё хранится в браузере на этом устройстве. Делайте экспорт перед чисткой браузера или для переноса.</p>
+                        <div class="row wrap">
+                            <button id="exportAllBtn">📤 Экспорт JSON</button>
+                            <button id="importAllBtn" class="secondary">📥 Импорт JSON</button>
+                            <button id="clearAllBtn" class="danger">Очистить всё</button>
+                        </div>
+                        <input type="file" id="importFileInput" accept=".json" hidden>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: ДОБАВИТЬ ЕДУ ===== -->
+<div class="modal" id="addModal" role="dialog" aria-modal="true" aria-label="Добавить еду">
+    <div class="modal-content modal-wide">
+        <div class="modal-header">
+            <h3>Добавить еду</h3>
+            <button class="modal-close" data-close-modal aria-label="Закрыть">×</button>
+        </div>
+        <div class="seg-row" id="addMealChips"></div>
+        <div class="add-tabs" id="addTabs">
+            <button data-addtab="search" class="active">🔍 Поиск</button>
+            <button data-addtab="quick">⚡ Быстрые</button>
+            <button data-addtab="recent">🕘 Недавние</button>
+            <button data-addtab="manual">✏️ Вручную</button>
+        </div>
+
+        <div class="add-panel active" id="addPanel-search">
+            <input type="text" id="foodSearchInput" placeholder="Начните вводить название..." autocomplete="off">
+            <div id="foodSearchResults" class="add-results"></div>
+        </div>
+
+        <div class="add-panel" id="addPanel-quick">
+            <div id="quickAddGrid" class="quick-add-grid"></div>
+            <div class="muted small mt8">Настроить наборы можно в разделе «Продукты» → «Быстрые продукты».</div>
+        </div>
+
+        <div class="add-panel" id="addPanel-recent">
+            <div id="recentList" class="add-results"></div>
+        </div>
+
+        <div class="add-panel" id="addPanel-manual">
+            <div class="form-grid">
+                <label class="span2">Название<input id="customName" placeholder="Например: Борщ домашний"></label>
+                <label>Порция (г)<input id="customPortion" type="number" value="100"></label>
+                <label>Калории<input id="customCal" type="number" value="0"></label>
+                <label>Белки (г)<input id="customPr" type="number" value="0" step="0.1"></label>
+                <label>Жиры (г)<input id="customFat" type="number" value="0" step="0.1"></label>
+                <label>Углеводы (г)<input id="customCarb" type="number" value="0" step="0.1"></label>
+                <label>Клетчатка (г)<input id="customFiber" type="number" value="0" step="0.1"></label>
+                <label>Сахара (г)<input id="customSugar" type="number" value="0" step="0.1"></label>
+                <label>Натрий (мг)<input id="customSodium" type="number" value="0"></label>
+            </div>
+            <div class="row wrap mt12">
+                <button id="addCustomBtn">Добавить в дневник</button>
+                <button class="secondary" id="saveAsMyProductBtn">Сохранить в мои продукты</button>
+            </div>
+        </div>
+
+        <!-- Панель выбора порции -->
+        <div class="portion-panel" id="portionPanel" hidden>
+            <div class="portion-head">
+                <b id="portionFoodName">Продукт</b>
+                <button class="ghost-btn" id="portionCancelBtn">← Назад</button>
+            </div>
+            <label>Порция (г)</label>
+            <div class="row">
+                <input type="range" id="portionSliderAdd" min="10" max="500" step="5" value="100" style="flex:1">
+                <input type="number" id="portionGrams" value="100" min="1" style="width:90px">
+            </div>
+            <div class="chip-row mt8">
+                <button class="chip" data-portion="50">50 г</button>
+                <button class="chip" data-portion="100">100 г</button>
+                <button class="chip" data-portion="150">150 г</button>
+                <button class="chip" data-portion="200">200 г</button>
+                <button class="chip" data-portion="300">300 г</button>
+            </div>
+            <div id="portionMacros" class="muted small mt8"></div>
+            <button class="big mt12" id="portionAddBtn">Добавить</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ ЗАПИСИ ДНЕВНИКА ===== -->
+<div class="modal" id="editMealModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Запись дневника</h3>
+            <button class="modal-close" data-close-modal aria-label="Закрыть">×</button>
+        </div>
+        <div id="editMealContent"></div>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: ПОЛНОЕ РЕДАКТИРОВАНИЕ ===== -->
+<div class="modal" id="fullEditModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Полное редактирование</h3>
+            <button class="modal-close" data-close-modal aria-label="Закрыть">×</button>
+        </div>
+        <div class="form-grid">
+            <label class="span2">Название<input id="editName"></label>
+            <label>Порция (г)<input id="editPortion" type="number"></label>
+            <label>Калории<input id="editCal" type="number"></label>
+            <label>Белки (г)<input id="editPr" type="number" step="0.1"></label>
+            <label>Жиры (г)<input id="editFat" type="number" step="0.1"></label>
+            <label>Углеводы (г)<input id="editCarb" type="number" step="0.1"></label>
+            <label>Клетчатка (г)<input id="editFiber" type="number" step="0.1"></label>
+            <label>Сахара (г)<input id="editSugar" type="number" step="0.1"></label>
+            <label>Натрий (мг)<input id="editSodium" type="number"></label>
+        </div>
+        <div class="row mt12">
+            <button id="saveFullEditBtn">Сохранить</button>
+            <button class="secondary" data-close-modal>Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: МОЙ ПРОДУКТ ===== -->
+<div class="modal" id="myProductModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="myProductModalTitle">Новый продукт</h3>
+            <button class="modal-close" data-close-modal aria-label="Закрыть">×</button>
+        </div>
+        <div class="form-grid">
+            <label class="span2">Название<input id="mpName" placeholder="Например: Гранола домашняя"></label>
+            <label>Эмодзи<input id="mpEmoji" maxlength="4" placeholder="🍽️"></label>
+            <label>Калории (на 100 г)<input id="mpCal" type="number" value="0"></label>
+            <label>Белки (г)<input id="mpPr" type="number" value="0" step="0.1"></label>
+            <label>Жиры (г)<input id="mpFat" type="number" value="0" step="0.1"></label>
+            <label>Углеводы (г)<input id="mpCarb" type="number" value="0" step="0.1"></label>
+            <label>Клетчатка (г)<input id="mpFiber" type="number" value="0" step="0.1"></label>
+            <label>Сахара (г)<input id="mpSugar" type="number" value="0" step="0.1"></label>
+            <label>Натрий (мг)<input id="mpSodium" type="number" value="0"></label>
+        </div>
+        <div class="row mt12">
+            <button id="saveMyProductBtn">Сохранить</button>
+            <button class="secondary" data-close-modal>Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: БЫСТРЫЙ ПРОДУКТ ===== -->
+<div class="modal" id="editQuickProductModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Быстрый продукт</h3>
+            <button class="modal-close" data-close-modal aria-label="Закрыть">×</button>
+        </div>
+        <div class="form-grid">
+            <label class="span2">Название<input type="text" id="editQuickName" placeholder="Название блюда"></label>
+            <label>Порция (г)<input type="number" id="editQuickPortion" placeholder="100"></label>
+            <label>Калории<input type="number" id="editQuickCal" placeholder="0"></label>
+            <label>Белки (г)<input type="number" step="0.1" id="editQuickPr" placeholder="0"></label>
+            <label>Жиры (г)<input type="number" step="0.1" id="editQuickFat" placeholder="0"></label>
+            <label>Углеводы (г)<input type="number" step="0.1" id="editQuickCarb" placeholder="0"></label>
+            <label>Клетчатка (г)<input type="number" step="0.1" id="editQuickFiber" placeholder="0"></label>
+            <label>Сахара (г)<input type="number" step="0.1" id="editQuickSugar" placeholder="0"></label>
+            <label>Натрий (мг)<input type="number" id="editQuickSodium" placeholder="0"></label>
+        </div>
+        <div class="row mt12">
+            <button id="saveEditQuickBtn">Сохранить</button>
+            <button class="secondary" data-close-modal>Отмена</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== МОДАЛЬНОЕ ОКНО: РЕЦЕПТ В ДНЕВНИК ===== -->
+<div class="modal" id="recipeAddModal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="recipeAddName">Рецепт в дневник</h3>
+            <button class="modal-close" data-close-modal aria-label="Закрыть">×</button>
+        </div>
+        <label>Приём пищи</label>
+        <select id="addRecipeMeal">
+            <option value="breakfast">🌅 Завтрак</option>
+            <option value="lunch">☀️ Обед</option>
+            <option value="dinner">🌙 Ужин</option>
+            <option value="snack">🍎 Перекус</option>
+        </select>
+        <label class="mt12">Порций</label>
+        <input id="addRecipeServings" type="number" value="1" min="1">
+        <button id="addRecipeToDiaryBtn" class="big mt12">Добавить в дневник</button>
+    </div>
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
