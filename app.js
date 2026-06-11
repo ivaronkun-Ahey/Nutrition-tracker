@@ -2140,6 +2140,7 @@ const liquidManager = {
     setupEvents: () => {
         $('#waterVolumeSlider').addEventListener('input', (e) => {
             $('#waterVolumeDisplay').textContent = (parseInt(e.target.value) || 0) + ' мл';
+            e.target.dataset.exact = '';
         });
         $$('#view-water .preset-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -2164,7 +2165,6 @@ const liquidManager = {
             const drinkId = $('#waterDrinkSelect').value;
             if (amount > 0 && drinkId) liquidManager.addLiquid(drinkId, amount);
         });
-        $('#waterVolumeSlider').addEventListener('input', () => { $('#waterVolumeSlider').dataset.exact = ''; });
 
         $('#addDrinkTypeBtn').addEventListener('click', () => {
             const form = $('#newDrinkForm');
@@ -2662,22 +2662,22 @@ const settingsManager = {
         });
 
         // Модули
-        const moduleToggle = (checkboxId, moduleKey, viewId) => {
+        const moduleToggle = (checkboxId, moduleKey, title) => {
             $(checkboxId).addEventListener('change', (e) => {
                 appState.settings.modules[moduleKey] = e.target.checked;
                 storage.saveState();
                 navManager.build();
                 settingsManager.renderModules();
                 if (moduleKey === 'micros') settingsManager.renderMicrosGoals();
-                if (e.target.checked && viewId) navManager.switchView(viewId);
+                if (title) utils.showNotif(e.target.checked ? `Раздел «${title}» появился в меню` : `Раздел «${title}» скрыт`);
             });
         };
-        moduleToggle('#modWater', 'water', 'water');
-        moduleToggle('#modRecipes', 'recipes', 'recipes');
+        moduleToggle('#modWater', 'water', 'Вода');
+        moduleToggle('#modRecipes', 'recipes', 'Рецепты');
         moduleToggle('#modMicros', 'micros', null);
         moduleToggle('#modGoalsCalc', 'goalsCalc', null);
-        moduleToggle('#modWeek', 'weekPlanner', 'week');
-        moduleToggle('#modShopping', 'shopping', 'shopping');
+        moduleToggle('#modWeek', 'weekPlanner', 'План недели');
+        moduleToggle('#modShopping', 'shopping', 'Покупки');
 
         // Тема
         $('#themeSeg').addEventListener('click', (e) => {
